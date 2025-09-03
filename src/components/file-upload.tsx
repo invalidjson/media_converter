@@ -210,11 +210,17 @@ export function FileUpload() {
             )}
 
             <div className="flex gap-2">
+              {!isConverting && (
+                <Button variant="outline" onClick={removeFile}>
+                  {conversionResult ? 'Convert Another' : 'Remove File'}
+                </Button>
+              )}
+              <div className="flex-1" />
               {!conversionResult ? (
                 <Button
+                  variant="outline"
                   onClick={startConversion}
                   disabled={!outputFormat || isConverting}
-                  className="flex-1"
                 >
                   {isConverting ? 'Converting...' : 'Start Conversion'}
                 </Button>
@@ -226,11 +232,6 @@ export function FileUpload() {
                   fileSize={uploadedFile.file.size}
                   onDownload={handleDownload}
                 />
-              )}
-              {!isConverting && (
-                <Button variant="outline" onClick={removeFile}>
-                  {conversionResult ? 'Convert Another' : 'Remove File'}
-                </Button>
               )}
             </div>
           </div>

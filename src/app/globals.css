@@ -140,6 +140,12 @@
   .gruvbox-hover {
     @apply hover:bg-muted hover:opacity-30 transition-colors duration-200;
   }
+
+  /* Ensure select dropdown has opaque background */
+  [data-radix-select-content] {
+    background-color: hsl(var(--popover)) !important;
+    backdrop-filter: none !important;
+  }
 }
 
 /* Animation improvements */
