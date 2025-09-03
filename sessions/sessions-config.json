@@ -1,0 +1,18 @@
+{
+  "developer_name": "jay",
+  "trigger_phrases": [
+    "make it so",
+    "run that",
+    "go ahead",
+    "yert",
+    "ok"
+  ],
+  "blocked_tools": [],
+  "task_detection": {
+    "enabled": true
+  },
+  "branch_enforcement": {
+    "enabled": true
+  },
+  "api_mode": true
+}

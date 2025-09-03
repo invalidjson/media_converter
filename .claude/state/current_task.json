@@ -1,0 +1,6 @@
+{
+  "task": "h-video-audio-converter",
+  "branch": "feature/video-audio-converter",
+  "services": ["frontend", "conversion-engine", "ui-components", "testing", "ci-cd"],
+  "updated": "2025-09-03"
+}

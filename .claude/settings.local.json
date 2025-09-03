@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__write_file",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx create-next-app:*)",
+      "Read(C:\\Users\\inval\\code\\Projects/**)",
+      "mcp__filesystem__create_directory",
+      "Bash(npm install)",
+      "Bash(npm audit:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm test)",
+      "Bash(npm test:*)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "github",
+    "memory"
+  ]
+}
