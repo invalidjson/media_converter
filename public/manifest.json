@@ -1,0 +1,75 @@
+{
+  "name": "Media Converter",
+  "short_name": "MediaConvert",
+  "description": "Professional video and audio conversion powered by FFMPEG.wasm",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#282828",
+  "theme_color": "#d79921",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "multimedia", "utilities"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Convert Video",
+      "short_name": "Video",
+      "description": "Convert video files",
+      "url": "/?format=video",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Convert Audio", 
+      "short_name": "Audio",
+      "description": "Convert audio files",
+      "url": "/?format=audio",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-narrow.png", 
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}

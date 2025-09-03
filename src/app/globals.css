@@ -2,26 +2,156 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #282828;
-  --foreground: #ebdbb2;
-}
-
-@media (prefers-color-scheme: light) {
+@layer base {
   :root {
-    --background: #fbf1c7;
-    --foreground: #3c3836;
+    /* Gruvbox Dark Theme (default) */
+    --background: 40 40 40;          /* #282828 */
+    --foreground: 235 219 178;       /* #ebdbb2 */
+    --card: 60 56 54;               /* #3c3836 */
+    --card-foreground: 235 219 178;  /* #ebdbb2 */
+    --popover: 60 56 54;            /* #3c3836 */
+    --popover-foreground: 235 219 178; /* #ebdbb2 */
+    --primary: 215 153 33;          /* #d79921 */
+    --primary-foreground: 40 40 40;  /* #282828 */
+    --secondary: 104 157 106;       /* #689d6a */
+    --secondary-foreground: 40 40 40; /* #282828 */
+    --muted: 80 73 69;              /* #504945 */
+    --muted-foreground: 168 153 132; /* #a89984 */
+    --accent: 254 128 25;           /* #fe8019 */
+    --accent-foreground: 251 241 199; /* #fbf1c7 */
+    --destructive: 204 36 29;       /* #cc241d */
+    --destructive-foreground: 251 241 199; /* #fbf1c7 */
+    --border: 80 73 69;             /* #504945 */
+    --input: 80 73 69;              /* #504945 */
+    --ring: 215 153 33;             /* #d79921 */
+    --chart-1: 215 153 33;          /* #d79921 */
+    --chart-2: 104 157 106;         /* #689d6a */
+    --chart-3: 131 165 152;         /* #83a598 */
+    --chart-4: 211 134 155;         /* #d3869b */
+    --chart-5: 254 128 25;          /* #fe8019 */
+    --radius: 0.75rem;
+  }
+
+  .light {
+    /* Gruvbox Light Theme */
+    --background: 251 241 199;      /* #fbf1c7 */
+    --foreground: 60 56 54;         /* #3c3836 */
+    --card: 235 219 178;            /* #ebdbb2 */
+    --card-foreground: 60 56 54;    /* #3c3836 */
+    --popover: 251 241 199;         /* #fbf1c7 */
+    --popover-foreground: 60 56 54; /* #3c3836 */
+    --primary: 181 118 20;          /* #b57614 */
+    --primary-foreground: 251 241 199; /* #fbf1c7 */
+    --secondary: 121 116 14;        /* #79740e */
+    --secondary-foreground: 251 241 199; /* #fbf1c7 */
+    --muted: 213 196 161;           /* #d5c4a1 */
+    --muted-foreground: 102 92 84;  /* #665c54 */
+    --accent: 175 58 3;             /* #af3a03 */
+    --accent-foreground: 251 241 199; /* #fbf1c7 */
+    --destructive: 157 0 6;         /* #9d0006 */
+    --destructive-foreground: 251 241 199; /* #fbf1c7 */
+    --border: 189 174 147;          /* #bdae93 */
+    --input: 189 174 147;           /* #bdae93 */
+    --ring: 181 118 20;             /* #b57614 */
+    --chart-1: 181 118 20;          /* #b57614 */
+    --chart-2: 121 116 14;          /* #79740e */
+    --chart-3: 7 102 120;           /* #076678 */
+    --chart-4: 143 63 113;          /* #8f3f71 */
+    --chart-5: 175 58 3;            /* #af3a03 */
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  h1 {
+    @apply text-4xl lg:text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl lg:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl lg:text-3xl;
+  }
+
+  h4 {
+    @apply text-xl lg:text-2xl;
+  }
+
+  p {
+    @apply leading-7;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/70;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Gruvbox specific utilities */
+  .gruvbox-shadow {
+    box-shadow: 0 4px 6px -1px hsl(var(--muted) / 0.3),
+                0 2px 4px -1px hsl(var(--muted) / 0.2);
+  }
+
+  .gruvbox-shadow-lg {
+    box-shadow: 0 10px 15px -3px hsl(var(--muted) / 0.3),
+                0 4px 6px -2px hsl(var(--muted) / 0.2);
+  }
+
+  .gruvbox-border {
+    @apply border border-border/50;
+  }
+
+  .gruvbox-bg-subtle {
+    @apply bg-muted/20;
+  }
+
+  .gruvbox-hover {
+    @apply hover:bg-muted/30 transition-colors duration-200;
+  }
+}
+
+/* Animation improvements */
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
 }

@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { ffmpegService } from '@/lib/services/ffmpeg-service'
 
 interface ConversionEngineProps {
   inputFile: File
@@ -19,45 +20,75 @@ export function ConversionEngine({
   onError,
   isActive
 }: ConversionEngineProps) {
-  const workerRef = useRef<Worker | null>(null)
+  const [isInitializing, setIsInitializing] = useState(false)
+  const conversionRef = useRef<boolean>(false)
 
   useEffect(() => {
-    if (!isActive || !inputFile || !outputFormat) return
+    if (!isActive || !inputFile || !outputFormat || conversionRef.current) return
 
     const startConversion = async () => {
+      conversionRef.current = true
+      
       try {
-        // For now, we'll simulate the conversion process
-        // In a real implementation, this would use FFMPEG.wasm or a server-side endpoint
-        
-        let progress = 0
-        const interval = setInterval(() => {
-          progress += Math.random() * 10
-          if (progress >= 100) {
-            progress = 100
-            clearInterval(interval)
-            
-            // Simulate file conversion completion
-            const outputFilename = `${inputFile.name.split('.')[0]}.${outputFormat}`
-            const blob = new Blob([inputFile], { type: `video/${outputFormat}` })
-            const url = URL.createObjectURL(blob)
-            
-            onComplete({
-              url,
-              filename: outputFilename
-            })
-          } else {
-            onProgress(progress)
-          }
-        }, 200)
+        setIsInitializing(true)
+        onProgress(0)
 
-        return () => clearInterval(interval)
+        // Initialize FFMPEG (this may take a moment on first load)
+        await ffmpegService.initialize()
+        setIsInitializing(false)
+        
+        onProgress(5) // Show that initialization is complete
+
+        // Start the actual conversion
+        const result = await ffmpegService.convert({
+          inputFile,
+          outputFormat,
+          onProgress: (progress) => {
+            // Map progress from 5-95% (leaving 5% for init, 5% for cleanup)
+            const adjustedProgress = Math.min(95, 5 + (progress * 0.9))
+            onProgress(adjustedProgress)
+          },
+          onLog: (message) => {
+            console.log('[Conversion]', message)
+          }
+        })
+
+        if (result.success && result.blob && result.filename) {
+          onProgress(100)
+          
+          // Create download URL
+          const url = URL.createObjectURL(result.blob)
+          
+          onComplete({
+            url,
+            filename: result.filename
+          })
+        } else {
+          throw new Error(result.error || 'Conversion failed')
+        }
       } catch (error) {
+        console.error('Conversion error:', error)
         onError(error instanceof Error ? error.message : 'Conversion failed')
+      } finally {
+        conversionRef.current = false
+        setIsInitializing(false)
       }
     }
 
     startConversion()
+
+    // Cleanup function
+    return () => {
+      conversionRef.current = false
+    }
   }, [isActive, inputFile, outputFormat, onProgress, onComplete, onError])
+
+  // Cleanup URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      // Cleanup will be handled by the parent component when it revokes URLs
+    }
+  }, [])
 
   // This component doesn't render anything visible
   // It's purely for handling the conversion logic

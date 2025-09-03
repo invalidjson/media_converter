@@ -22,18 +22,34 @@ export function ConversionHistory() {
   const [conversions, setConversions] = useState<ConversionRecord[]>([])
 
   // Load conversion history from localStorage on mount
-  useEffect(() => {
+  const loadConversions = () => {
     const savedConversions = localStorage.getItem('conversionHistory')
     if (savedConversions) {
       try {
         const parsed = JSON.parse(savedConversions)
         setConversions(parsed.map((conv: any) => ({
           ...conv,
-          timestamp: new Date(conv.timestamp)
+          id: conv.id || crypto.randomUUID(),
+          timestamp: new Date(conv.timestamp || new Date())
         })))
       } catch (error) {
         console.error('Failed to load conversion history:', error)
       }
+    }
+  }
+
+  useEffect(() => {
+    loadConversions()
+    
+    // Listen for conversion completion events
+    const handleConversionComplete = (event: CustomEvent) => {
+      loadConversions() // Reload from localStorage
+    }
+    
+    window.addEventListener('conversionComplete', handleConversionComplete as EventListener)
+    
+    return () => {
+      window.removeEventListener('conversionComplete', handleConversionComplete as EventListener)
     }
   }, [])
 

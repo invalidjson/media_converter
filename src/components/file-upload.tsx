@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress'
 import { isVideoFile, isAudioFile, getSupportedOutputFormats, formatFileSize } from '@/lib/utils'
 import { ConversionEngine } from './conversion-engine'
+import { DownloadDialog } from './download-dialog'
 
 interface UploadedFile {
   file: File
@@ -20,6 +21,7 @@ export function FileUpload() {
   const [isDragOver, setIsDragOver] = useState(false)
   const [isConverting, setIsConverting] = useState(false)
   const [conversionProgress, setConversionProgress] = useState(0)
+  const [conversionResult, setConversionResult] = useState<{url: string; filename: string} | null>(null)
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
@@ -73,10 +75,25 @@ export function FileUpload() {
     if (uploadedFile?.preview) {
       URL.revokeObjectURL(uploadedFile.preview)
     }
+    if (conversionResult?.url) {
+      URL.revokeObjectURL(conversionResult.url)
+    }
     setUploadedFile(null)
     setOutputFormat('')
     setConversionProgress(0)
-  }, [uploadedFile])
+    setConversionResult(null)
+  }, [uploadedFile, conversionResult])
+
+  const handleDownload = useCallback((customFilename: string) => {
+    if (!conversionResult) return
+    
+    const link = document.createElement('a')
+    link.href = conversionResult.url
+    link.download = customFilename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }, [conversionResult])
 
   const startConversion = useCallback(() => {
     if (!uploadedFile || !outputFormat) return
@@ -94,23 +111,25 @@ export function FileUpload() {
   const supportedFormats = uploadedFile ? getSupportedOutputFormats(uploadedFile.file.name) : []
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="h-5 w-5" />
+    <Card className="w-full gruvbox-shadow hover:gruvbox-shadow-lg transition-all duration-300">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center gap-3 text-lg">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Upload className="h-4 w-4 text-primary" />
+          </div>
           File Upload
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Drag and drop your video or audio files here, or click to browse
         </CardDescription>
       </CardHeader>
       <CardContent>
         {!uploadedFile ? (
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-300 ${
               isDragOver
-                ? 'border-primary bg-primary/10'
-                : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+                ? 'border-primary bg-primary/10 gruvbox-shadow scale-105'
+                : 'border-border/50 hover:border-primary/50 gruvbox-hover'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -191,16 +210,26 @@ export function FileUpload() {
             )}
 
             <div className="flex gap-2">
-              <Button
-                onClick={startConversion}
-                disabled={!outputFormat || isConverting}
-                className="flex-1"
-              >
-                {isConverting ? 'Converting...' : 'Start Conversion'}
-              </Button>
+              {!conversionResult ? (
+                <Button
+                  onClick={startConversion}
+                  disabled={!outputFormat || isConverting}
+                  className="flex-1"
+                >
+                  {isConverting ? 'Converting...' : 'Start Conversion'}
+                </Button>
+              ) : (
+                <DownloadDialog
+                  url={conversionResult.url}
+                  originalFilename={uploadedFile.file.name}
+                  outputFormat={outputFormat}
+                  fileSize={uploadedFile.file.size}
+                  onDownload={handleDownload}
+                />
+              )}
               {!isConverting && (
                 <Button variant="outline" onClick={removeFile}>
-                  Remove File
+                  {conversionResult ? 'Convert Another' : 'Remove File'}
                 </Button>
               )}
             </div>
@@ -215,12 +244,36 @@ export function FileUpload() {
             onComplete={(result) => {
               setIsConverting(false)
               setConversionProgress(100)
+              setConversionResult(result)
+              
+              // Add to conversion history
+              const conversionRecord = {
+                inputFilename: uploadedFile.file.name,
+                outputFilename: result.filename,
+                inputFormat: uploadedFile.file.name.split('.').pop()?.toLowerCase() || '',
+                outputFormat: outputFormat,
+                fileSize: uploadedFile.file.size,
+                status: 'completed' as const,
+                downloadUrl: result.url
+              }
+              
+              // Save to localStorage for history
+              const existingHistory = JSON.parse(localStorage.getItem('conversionHistory') || '[]')
+              const newHistory = [conversionRecord, ...existingHistory]
+              localStorage.setItem('conversionHistory', JSON.stringify(newHistory))
+              
+              // Trigger a custom event to notify the history component
+              window.dispatchEvent(new CustomEvent('conversionComplete', { detail: conversionRecord }))
+              
               console.log('Conversion complete:', result)
             }}
             onError={(error) => {
               setIsConverting(false)
               setConversionProgress(0)
               console.error('Conversion error:', error)
+              
+              // You could add error handling UI here
+              alert(`Conversion failed: ${error}`)
             }}
             isActive={isConverting}
           />

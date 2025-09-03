@@ -1,5 +1,23 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable COOP and COEP headers for FFMPEG.wasm SharedArrayBuffer support
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp'
+          },
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin'
+          }
+        ]
+      }
+    ]
+  },
   experimental: {
     turbo: {
       rules: {
